@@ -6,6 +6,7 @@ Attention, le nom des différents fichiers ne doit pas changer !!"""
 import csv
 import os
 import locale   #Pour transformation de ',' en '.' (pour avoir des réels et non des entiers)
+import time
 #import numpy as np
 locale.setlocale(locale.LC_ALL, 'fr_FR') # windows :locale.setlocale(locale.LC_ALL, 'french')
 
@@ -95,10 +96,10 @@ def supfile():
     
 
 
-def findMaxDepth(colonne,adresse):
+def findMaxDepth(colonne,adresse,separateur):
     """Cette fonction recherche  et renvoie la profondeur max de la colonne choisie du fichier CSV"""
     with open(adresse, 'r', encoding="utf8", errors='ignore') as fd:   #ouvertur du fichier indiqué à l'adresse en mode lecture en tant que fd
-        reader = csv.reader(fd, delimiter=separateurCsv)
+        reader = csv.reader(fd, delimiter=separateur)
         i = -1
         loc3 = []
         max = 0
@@ -118,7 +119,8 @@ def findMaxDepth(colonne,adresse):
 def findStart():
     """Cette fonction recherche et renvoie la latitude/logitude de départ et la latidue/longitude d'arrivée
     Pour ne pas utiliser de fonction max, qui pourrait inverser le sens du trajet parcouru par le bateau, la fonction récupère
-    uniquement le premier et le dernier élement des colonnes longitude et latitude """
+    uniquement le premier et le dernier élement des colonnes longitude et latitude.
+    Cette fonction renvoie aussi l'adresse des colonnes 'latitude' et 'longitude'"""
     with open(adressCsv, 'r', encoding="utf8", errors='ignore') as fd:   #ouvertur du fichier indiqué à l'adresse en mode lecture en tant que fd
         reader = csv.reader(fd, delimiter=separateurCsv)
         i = -1
@@ -132,8 +134,8 @@ def findStart():
                 nextline = next(reader)
                 colLat = ligne.index("Latitude")
                 colLon = ligne.index("Longitude")
-                LatStart=nextline[ligne.index("Latitude")]
-                LonStart=nextline[ligne.index("Longitude")]
+                LatStart=nextline[colLat]   #récupère la première valeur de la colonne Latitude
+                LonStart=nextline[colLon]       #récupère la première valeur de la colonne Longitude
                 latlonStart.append(LatStart)
                 latlonStart.append(LonStart) 
                 return latlonStart, colLat, colLon
@@ -149,12 +151,11 @@ def findEnd(colLat, colLon):
         latlonEnd.append(l[colLon])
         return latlonEnd
 
-if not os.path.exists('/Users/simonfeger/Desktop/Work'):
-    os.makedirs('/Users/simonfeger/Desktop/Work')
 
 
+tps1=time.process_time()
 
-latlonStart = findStart()[0]
+latlonStart = findStart()[0]   #le O fait permet de récuperer uniquement latlonStart et non pas colLat et colLon
 colLat = findStart()[1]
 colLon = findStart()[2]
 latlonEnd = findEnd(colLat, colLon)
@@ -164,12 +165,14 @@ latlonEnd = findEnd(colLat, colLon)
 #?? loc3 = findMaxDepth(mot3)
 
 supfile()
-max = findMaxDepth(mot3,adressCsv)
+max = findMaxDepth(mot3,adressCsv,separateurCsv)
 Export()
 
-print(latlonStart)
-print(latlonEnd)
+print("lat/lon start :",latlonStart)
+print("lat/lon end : ",latlonEnd)
 
+ts2=time.process_time()
+print("timer :",ts2-tps1)
 
 
 #
