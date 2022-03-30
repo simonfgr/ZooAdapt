@@ -95,24 +95,24 @@ def supfile():
     
 
 
-def findMaxDepth(mot3):
-    """Cette fonction recherche  et renvoie la profondeur max de la colonne Sonde ref. (m) du fichier CSV"""
-    with open(adressCsv, 'r', encoding="utf8", errors='ignore') as fd:   #ouvertur du fichier indiqué à l'adresse en mode lecture en tant que fd
+def findMaxDepth(colonne,adresse):
+    """Cette fonction recherche  et renvoie la profondeur max de la colonne choisie du fichier CSV"""
+    with open(adresse, 'r', encoding="utf8", errors='ignore') as fd:   #ouvertur du fichier indiqué à l'adresse en mode lecture en tant que fd
         reader = csv.reader(fd, delimiter=separateurCsv)
         i = -1
         loc3 = []
         max = 0
         for ligne in reader:
             i += 1
-            if mot3 in ligne:
+            if colonne in ligne:
                 loc3.append(i)
-                loc3.append(ligne.index(mot3))
+                loc3.append(ligne.index(colonne))
             try :
                 data = locale.atof(ligne[loc3[1]])
                 if max<data:
                     max =  data
             except :
-                print("NAN in CSV file to Sonde ref. (m)")
+                print("NAN in CSV file to Sonde ref. (m)",loc3)
     return max
 
 def findStart():
@@ -164,7 +164,7 @@ latlonEnd = findEnd(colLat, colLon)
 #?? loc3 = findMaxDepth(mot3)
 
 supfile()
-max = findMaxDepth(mot3)
+max = findMaxDepth(mot3,adressCsv)
 Export()
 
 print(latlonStart)
