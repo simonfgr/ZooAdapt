@@ -7,25 +7,24 @@ import csv
 import os
 import locale   #Pour transformation de ',' en '.' (pour avoir des réels et non des entiers)
 #import numpy as np
-
-mot1 = "Bord"
-mot2 = "Prediction"
-mot3 = "Sonde ref. (m)"
-valeur = 'Bord'
-colonne = "Bord"
-lien = '/Users/simonfeger/Desktop/Work/pour ecotaxa' #input('lien :')
-adressPid = lien + '/WP2_0001/valid_PELGAS2021_WP2_1.pid'
-adressCsv = lien + '/20210426_132330_20210527_093800_pelgas2021.csv'
-adressVignettes = lien + '/WP2_0001/Vignettes'
-separateur = '\t'
-separateurCsv = ';'
-
 locale.setlocale(locale.LC_ALL, 'fr_FR') # windows :locale.setlocale(locale.LC_ALL, 'french')
 
 
-def Find(mot1,mot2, adressPid, separateur):
+mot1 = "Bord"  #La colonne bord du fichier pid est utilisée pour déterminer les images coupées
+mot2 = "Prediction" #La colonne prédiction du fichier pid est utilisée pour connaitre le nom du dossier ou chercher les images
+mot3 = "Sonde ref. (m)"  # La colonne sonde du fichier csv est utilisée pour récuperer la profondeur max 
+lien = '/Users/simonfeger/Desktop/Work/pour ecotaxa' #input('lien :')   #Tout doit se trouver au même en droit dans le dissier importé
+adressPid = lien + '/WP2_0001/valid_PELGAS2021_WP2_1.pid'
+adressCsv = lien + '/20210426_132330_20210527_093800_pelgas2021.csv'
+adressVignettes = lien + '/WP2_0001/Vignettes'
+separateurPid = '\t'
+separateurCsv = ';'
+
+
+
+def Find(mot1,mot2, fileAdress, separateur):
     """cette fonction retourne les coordonnées d'un mot dans un tableau"""
-    fh = open(adressPid, encoding="utf8", errors='ignore')
+    fh = open(fileAdress, encoding="utf8", errors='ignore')
     reader = csv.reader(fh, delimiter=separateur)
     i = -1
     loc1 = []
@@ -45,8 +44,8 @@ def Find(mot1,mot2, adressPid, separateur):
 def Export():
     """Cette fonction créer un fichier txt en copie du pid mais suprime les lignes du fichier indiqué pour 'adress' qui ont dans la colonne 'Bord' un charactère différent de 0.
     Elle ajoute aussi la valeur maximum de la colonne Sonde ref. (m) à la ligne max Depth"""
-    col1=Find(mot1,mot2, adressPid, separateur)[0][1]
-    col2=Find(mot1,mot2, adressPid, separateur)[1][1]
+    col1=Find(mot1,mot2, adressPid, separateurPid)[0][1]
+    col2=Find(mot1,mot2, adressPid, separateurPid)[1][1]
     with open(adressPid, 'r', encoding="utf8", errors='ignore') as fd:   #ouvertur du fichier indiqué à l'adresse en mode lecture en tant que fd
         with open( lien + "/export.txt", "w") as fd1:                         #Création d'un fichier texte en tant que fd1
             body = False    #Nous considérons au début que nous ne sommes pas dans le 'body' (=tableau et non entête) 
@@ -76,8 +75,8 @@ def Export():
 
 
 def supfile():
-    col1=Find(mot1,mot2, adressPid, separateur)[0][1]
-    col2=Find(mot1,mot2, adressPid, separateur)[1][1]
+    col1=Find(mot1,mot2, adressPid, separateurPid)[0][1]
+    col2=Find(mot1,mot2, adressPid, separateurPid)[1][1]
     """Cette fonction supprime les vignettes dont la colonne 'Bord' est différente de 0 dans le .pid en retrouvants les images par leur nom donné dans le .pid"""
     with open(adressPid, 'r', encoding="utf8", errors='ignore') as fd:   #ouvertur du fichier indiqué à l'adresse en mode lecture en tant que fd
         for line in fd:
@@ -153,7 +152,8 @@ def findEnd(colLat, colLon):
         latlonEnd.append(l[colLon])
         return latlonEnd
 
-
+if not os.path.exists('/Users/simonfeger/Desktop/Work'):
+    os.makedirs('/Users/simonfeger/Desktop/Work')
 
 
 
