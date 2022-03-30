@@ -22,30 +22,26 @@ separateurCsv = ';'
 
 
 
-def Find(mot1,mot2, fileAdress, separateur):
+def Find(mot1, fileAdress, separateur):
     """cette fonction retourne les coordonnées d'un mot dans un tableau"""
     fh = open(fileAdress, encoding="utf8", errors='ignore')
     reader = csv.reader(fh, delimiter=separateur)
     i = -1
     loc1 = []
-    loc2 = []
     for ligne in reader:
         i += 1
         if mot1 in ligne:
             loc1.append(i)
             loc1.append(ligne.index(mot1))
-        if mot2 in ligne:
-            loc2.append(i)
-            loc2.append(ligne.index(mot2))
-    return loc1, loc2
+    return loc1
 
 
 
 def Export():
     """Cette fonction créer un fichier txt en copie du pid mais suprime les lignes du fichier indiqué pour 'adress' qui ont dans la colonne 'Bord' un charactère différent de 0.
     Elle ajoute aussi la valeur maximum de la colonne Sonde ref. (m) à la ligne max Depth"""
-    col1=Find(mot1,mot2, adressPid, separateurPid)[0][1]
-    col2=Find(mot1,mot2, adressPid, separateurPid)[1][1]
+    colBord=Find(mot1, adressPid, separateurPid)[1]
+    colPred=Find(mot2, adressPid, separateurPid)[1]
     with open(adressPid, 'r', encoding="utf8", errors='ignore') as fd:   #ouvertur du fichier indiqué à l'adresse en mode lecture en tant que fd
         with open( lien + "/export.txt", "w") as fd1:                         #Création d'un fichier texte en tant que fd1
             body = False    #Nous considérons au début que nous ne sommes pas dans le 'body' (=tableau et non entête) 
@@ -67,7 +63,7 @@ def Export():
                     body = True
                 if body == True and line.count('\t')>10:   #Pour parcourir les colonnes d'une ligne, utilisons \t pour différencier les données entre chaque tabulation. Et pour être sur de commencer au bon endroit, il faut avoir parcouru au moins 10 lignes (sécurtié 2?)
                     l = line.split("\t")
-                    if l[col1] == "0":       #Lorsque la colonne en l(col) - soit la colonne Bord - possède un caractère = à 0 alors:
+                    if l[colBord] == "0":       #Lorsque la colonne en l(col) - soit la colonne Bord - possède un caractère = à 0 alors:
                         fd1.write(line)     #la ligne est copiée dans le fichier créé (fd1) 
                 else:
                     if "Latitude" not in line and "Longitude"not in line and "Max Depth = 0.000"not in line :
@@ -75,8 +71,8 @@ def Export():
 
 
 def supfile():
-    col1=Find(mot1,mot2, adressPid, separateurPid)[0][1]
-    col2=Find(mot1,mot2, adressPid, separateurPid)[1][1]
+    colBord=Find(mot1, adressPid, separateurPid)[1]
+    colPred=Find(mot2, adressPid, separateurPid)[1]
     """Cette fonction supprime les vignettes dont la colonne 'Bord' est différente de 0 dans le .pid en retrouvants les images par leur nom donné dans le .pid"""
     with open(adressPid, 'r', encoding="utf8", errors='ignore') as fd:   #ouvertur du fichier indiqué à l'adresse en mode lecture en tant que fd
         for line in fd:
@@ -86,9 +82,9 @@ def supfile():
                     body = True
                 if body == True and line.count('\t')>10:   #Pour parcourir les colonnes d'une ligne, utilisons \t pour différencier les données entre chaque tabulation. Et pour être sur de commencer au bon endroit, il faut avoir parcouru au moins 10 lignes (sécurtié 2?)
                     l = line.split("\t")
-                    if l[col1] != "0":       #Lorsque la colonne en l(col) - soit la colonne Bord - possède un caractère = à 0 alors:
+                    if l[colBord] != "0":       #Lorsque la colonne en l(col) - soit la colonne Bord - possède un caractère = à 0 alors:
                         fname=l[1]+'_'+l[0]
-                        fdos=l[col2]
+                        fdos=l[colPred]
                         ad = adressVignettes +'/'+ fdos +'/'+ fname+'.jpg'  #!!!!!!!!!!!Il faut que les images soient en .jpg
                         try:
                             os.remove(ad)
