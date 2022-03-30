@@ -19,10 +19,11 @@ adressCsv = lien + '/20210426_132330_20210527_093800_pelgas2021.csv'
 adressVignettes = lien + '/WP2_0001/Vignettes'
 separateurPid = '\t'
 separateurCsv = ';'
+formatImg = ".jpg"
 
 
 
-def Find(mot1, fileAdress, separateur):
+def Find(mot, fileAdress, separateur):
     """cette fonction retourne les coordonnées d'un mot dans un tableau"""
     fh = open(fileAdress, encoding="utf8", errors='ignore')
     reader = csv.reader(fh, delimiter=separateur)
@@ -30,7 +31,7 @@ def Find(mot1, fileAdress, separateur):
     loc1 = []
     for ligne in reader:
         i += 1
-        if mot1 in ligne:
+        if mot in ligne:
             loc1.append(i)
             loc1.append(ligne.index(mot1))
     return loc1
@@ -85,7 +86,7 @@ def supfile():
                     if l[colBord] != "0":       #Lorsque la colonne en l(col) - soit la colonne Bord - possède un caractère = à 0 alors:
                         fname=l[1]+'_'+l[0]
                         fdos=l[colPred]
-                        ad = adressVignettes +'/'+ fdos +'/'+ fname+'.jpg'  #!!!!!!!!!!!Il faut que les images soient en .jpg
+                        ad = adressVignettes +'/'+ fdos +'/'+ fname+formatImg  
                         try:
                             os.remove(ad)
                             #print("Fichier supprimer :"+ad)
