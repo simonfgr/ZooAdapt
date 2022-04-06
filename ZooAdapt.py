@@ -1,7 +1,8 @@
 """Maj: export du fichier export.txt au bon endroit (dans le lien donné) + inversion des fichiers à supprimer !!!!!
 ajout du maximum mou max Depth.
 ajout de latitude/longitude start et End.
-Attention, le nom des différents fichiers ne doit pas changer !!"""
+Attention, le nom des différents fichiers ne doit pas changer !!
+Création de WP2List + createDir"""
 
 import csv
 import os
@@ -14,14 +15,58 @@ locale.setlocale(locale.LC_ALL, 'fr_FR') # windows :locale.setlocale(locale.LC_A
 mot1 = "Bord"  #La colonne bord du fichier pid est utilisée pour déterminer les images coupées
 mot2 = "Prediction" #La colonne prédiction du fichier pid est utilisée pour connaitre le nom du dossier ou chercher les images
 mot3 = "Sonde ref. (m)"  # La colonne sonde du fichier csv est utilisée pour récuperer la profondeur max 
-lien = '/Users/simonfeger/Desktop/Work/pour ecotaxa' #input('lien :')   #Tout doit se trouver au même en droit dans le dissier importé
+lien = '/Users/simonfeger/Desktop/Work/pour_ecotaxa_propre' #input('lien :')   #Tout doit se trouver au même en droit dans le dissier importé
 adressPid = lien + '/WP2_0001/valid_PELGAS2021_WP2_1.pid'
 adressCsv = lien + '/20210426_132330_20210527_093800_pelgas2021.csv'
 adressVignettes = lien + '/WP2_0001/Vignettes'
 separateurPid = '\t'
 separateurCsv = ';'
-formatImg = ".jpg"
+formatImg = ".jpg"  # Format toujours en .JPG !!
 
+
+def WP2List(path):
+    """Cette fonction prend en argument le lien contenant les dossier WP2 souhaité et renvoie une liste des différents dossier WP2 qui s'y trouvent"""
+    fold = os.listdir(path)
+    WP2list = []
+    for i in fold:
+        if "WP2" in i:
+            WP2list.append(i)
+    return WP2list
+
+WP2list=WP2List(lien)
+
+def createDir(Path):
+    """Cette fonction créé les dossiers export correspondant à chaque dossier de WP2 dans le lien donné en entrée"""
+    for dos in WP2list:
+        print(dos)
+        os.mkdir(Path+'/'+dos+'_exp') #Les dossiers WP2_exp sont créés au même endroit que les originaux
+        print('created dir '+ Path+'/'+dos+'_exp')
+
+createDir(lien)
+
+def FindPathFile(link, Fname):
+    inLink = os.listdir(link)
+    Path=''
+    for i in inLink:
+        if Fname in i:
+            print("found "+ i)
+            Path = link+'/'+i
+            return(Path)
+        else:
+            print('not here '+i)
+    for i in inLink:
+        for j in WP2list:
+            secondPath = path + '/' + j
+            for s in secondPath:
+                if Fname in s:
+                    print('found '+s+' in WP2')
+                    Path = secondPath+'/'+s
+    return Path
+
+adressCsv = FindPathFile(lien, '.csv')
+adressPid = FindPathFile(lien, '.pid')
+print(adressCsv)
+print(adressPid)
 
 
 def Find(mot, fileAdress, separateur):
