@@ -2,7 +2,9 @@
 ajout du maximum mou max Depth.
 ajout de latitude/longitude start et End.
 Attention, le nom des différents fichiers ne doit pas changer !!
-Création de WP2List + createDir"""
+Création de WP2List + createDir +maj créate dir
+Création liste des adress des pid
+save avant changement de la fonction export pour exporter plusieurs fichiers texte àn partir de chaque pid"""
 
 import csv
 import os
@@ -24,7 +26,7 @@ separateurCsv = ';'
 formatImg = ".jpg"  # Format toujours en .JPG !!
 
 
-def WP2List(path):
+def WP2listing(path):
     """Cette fonction prend en argument le lien contenant les dossier WP2 souhaité et renvoie une liste des différents dossier WP2 qui s'y trouvent"""
     fold = os.listdir(path)
     WP2list = []
@@ -33,18 +35,28 @@ def WP2List(path):
             WP2list.append(i)
     return WP2list
 
-WP2list=WP2List(lien)
+WP2list=WP2listing(lien)
 
 def createDir(Path):
-    """Cette fonction créé les dossiers export correspondant à chaque dossier de WP2 dans le lien donné en entrée"""
+    """Cette fonction créé les dossiers export correspondant à chaque dossier de WP2 dans le lien donné en entrée
+    Elle renvoie aussi les chemin des fichiers créés."""
+    NewPath = []
     for dos in WP2list:
         print(dos)
+        chemin = Path+'/'+dos+'_exp'
         os.mkdir(Path+'/'+dos+'_exp') #Les dossiers WP2_exp sont créés au même endroit que les originaux
         print('created dir '+ Path+'/'+dos+'_exp')
+        NewPath.append(chemin)
+    print (NewPath)
 
 createDir(lien)
 
 def FindPathFile(link, Fname):
+    """
+    Cette fonction prend en argument le lien d'un dossier ainsi qu'une partie du nom du dossier/Fichier recherché.
+    Elle retourne le chemin du fichier recherché.
+    Cette fonction ne fouille pas dans les sous dossiers !!
+    """
     inLink = os.listdir(link)
     Path=''
     for i in inLink:
@@ -54,14 +66,26 @@ def FindPathFile(link, Fname):
             return(Path)
         else:
             print('not here '+i)
-    for i in inLink:
+    """for i in inLink:       #Cette partie est créé dans le cas ou l'on souhaiterai fouiller dans les sous-dossiers
         for j in WP2list:
             secondPath = path + '/' + j
             for s in secondPath:
                 if Fname in s:
                     print('found '+s+' in WP2')
-                    Path = secondPath+'/'+s
+                    Path = secondPath+'/'+s"""
     return Path
+
+
+
+
+#making a list of .pid adress
+adressPidList = []
+for i in WP2list:
+    adress= FindPathFile(lien, i)
+    adressPidList.append(adress)
+
+
+
 
 adressCsv = FindPathFile(lien, '.csv')
 adressPid = FindPathFile(lien, '.pid')
@@ -198,7 +222,6 @@ def findEnd(colLat, colLon):
 
 
 
-tps1=time.process_time()
 
 latlonStart = findStart()[0]   #le O fait permet de récuperer uniquement latlonStart et non pas colLat et colLon
 colLat = findStart()[1]
@@ -216,8 +239,6 @@ Export()
 print("lat/lon start :",latlonStart)
 print("lat/lon end : ",latlonEnd)
 
-ts2=time.process_time()
-print("timer :",ts2-tps1)
 
 
 #
