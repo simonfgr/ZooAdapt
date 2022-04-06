@@ -4,7 +4,9 @@ ajout de latitude/longitude start et End.
 Attention, le nom des différents fichiers ne doit pas changer !!
 Création de WP2List + createDir +maj créate dir
 Création liste des adress des pid
-save avant changement de la fonction export pour exporter plusieurs fichiers texte àn partir de chaque pid"""
+save avant changement de la fonction export pour exporter plusieurs fichiers texte àn partir de chaque pid
+CréateDir peut etre lancé deux fois sans devoir supprimer les ficheirs créés auparavant
+Correction problème fonction Find"""
 
 import csv
 import os
@@ -42,14 +44,17 @@ def createDir(Path):
     Elle renvoie aussi les chemin des fichiers créés."""
     NewPath = []
     for dos in WP2list:
-        print(dos)
-        chemin = Path+'/'+dos+'_exp'
-        os.mkdir(Path+'/'+dos+'_exp') #Les dossiers WP2_exp sont créés au même endroit que les originaux
-        print('created dir '+ Path+'/'+dos+'_exp')
-        NewPath.append(chemin)
-    print (NewPath)
+        try:
+            print(dos)
+            chemin = Path+'/'+dos+'_exp'
+            os.mkdir(Path+'/'+dos+'_exp') #Les dossiers WP2_exp sont créés au même endroit que les originaux
+            print('created dir '+ Path+'/'+dos+'_exp')
+            NewPath.append(chemin)
+        except:
+            print("path already exist ")
+    return NewPath
 
-createDir(lien)
+NewPath = createDir(lien)
 
 def FindPathFile(link, Fname):
     """
@@ -81,16 +86,15 @@ def FindPathFile(link, Fname):
 #making a list of .pid adress
 adressPidList = []
 for i in WP2list:
-    adress= FindPathFile(lien, i)
+    adress= FindPathFile(lien+'/'+i, '.pid')
     adressPidList.append(adress)
 
 
 
-
+#Creation of path from the CSV
 adressCsv = FindPathFile(lien, '.csv')
-adressPid = FindPathFile(lien, '.pid')
 print(adressCsv)
-print(adressPid)
+
 
 
 def Find(mot, fileAdress, separateur):
@@ -103,42 +107,45 @@ def Find(mot, fileAdress, separateur):
         i += 1
         if mot in ligne:
             loc1.append(i)
-            loc1.append(ligne.index(mot1))
+            loc1.append(ligne.index(mot))
     return loc1
 
 
 
-def Export():
-    """Cette fonction créer un fichier txt en copie du pid mais suprime les lignes du fichier indiqué pour 'adress' qui ont dans la colonne 'Bord' un charactère différent de 0.
-    Elle ajoute aussi la valeur maximum de la colonne Sonde ref. (m) à la ligne max Depth"""
-    colBord=Find(mot1, adressPid, separateurPid)[1]
-    colPred=Find(mot2, adressPid, separateurPid)[1]
-    with open(adressPid, 'r', encoding="utf8", errors='ignore') as fd:   #ouvertur du fichier indiqué à l'adresse en mode lecture en tant que fd
-        with open( lien + "/export.txt", "w") as fd1:                         #Création d'un fichier texte en tant que fd1
-            body = False    #Nous considérons au début que nous ne sommes pas dans le 'body' (=tableau et non entête) 
-            count = 0 #testttttt                                
-            for line in fd:                     #parcourons les lignes de fd
-                count +=1
-                if "Longitude start = 0.000"in line:
-                    fd1.write("Longitude start = "+latlonStart[1]+"\n")
-                if "Longitude end = 0.000" in line:
-                    fd1.write("Longitude end = "+latlonEnd[1]+"\n")
-                if "Latitude start = 0.000" in line:
-                    fd1.write("Latitude start = "+latlonStart[0]+"\n")
-                if "Latitude end = 0.000" in line:
-                    fd1.write("Latitude end = "+latlonEnd[0]+"\n")
-                if "Max Depth = 0.000" in line:
-                    fd1.write("Max Depth (m???) = " + str(max) +"\n")  
-                    #fd[11]= "Max Depth = " + str(max)
-                if line.startswith("1") and not body:           #Commencons à parcourir les colonnes à partir de la ligne de l'objet '1'    (Sécurité 1 ?)
-                    body = True
-                if body == True and line.count('\t')>10:   #Pour parcourir les colonnes d'une ligne, utilisons \t pour différencier les données entre chaque tabulation. Et pour être sur de commencer au bon endroit, il faut avoir parcouru au moins 10 lignes (sécurtié 2?)
-                    l = line.split("\t")
-                    if l[colBord] == "0":       #Lorsque la colonne en l(col) - soit la colonne Bord - possède un caractère = à 0 alors:
-                        fd1.write(line)     #la ligne est copiée dans le fichier créé (fd1) 
-                else:
-                    if "Latitude" not in line and "Longitude"not in line and "Max Depth = 0.000"not in line :
-                        fd1.write(line)         #Cette ligne permet de copier dans le nouveau fichier les lignes précédents le tableau.
+def Export():  #Créate Export from pid only
+    for i in range(len(adressPidList)):
+        """Cette fonction créer un fichier txt en copie du pid mais suprime les lignes du fichier indiqué pour 'adress' qui ont dans la colonne 'Bord' un charactère différent de 0.
+        Elle ajoute aussi la valeur maximum de la colonne Sonde ref. (m) à la ligne max Depth"""
+        colBord=Find(mot1, adressPidList[i], separateurPid)[1] ########JE VEUX ICI LE LIEN D4UN FICHIER ET PAS D'UN DOSSIER AU LIEU DE ADRESSPILIST
+        colPred=Find(mot2, adressPidList[i], separateurPid)[1]
+        with open(adressPidList[i], 'r', encoding="utf8", errors='ignore') as fd:   #ouvertur du fichier indiqué à l'adresse en mode lecture en tant que fd
+            print('adressPidList[i]: '+adressPidList[i])
+            with open( NewPath[i] + "/export.txt", "w") as fd1:                         #Création d'un fichier texte en tant que fd1
+                body = False    #Nous considérons au début que nous ne sommes pas dans le 'body' (=tableau et non entête) 
+                count = 0 #testttttt                                
+                for line in fd:                     #parcourons les lignes de fd
+                    count +=1
+                    if "Longitude start = 0.000"in line:
+                        fd1.write("Longitude start = "+latlonStart[1]+"\n")
+                    if "Longitude end = 0.000" in line:
+                        fd1.write("Longitude end = "+latlonEnd[1]+"\n")
+                    if "Latitude start = 0.000" in line:
+                        fd1.write("Latitude start = "+latlonStart[0]+"\n")
+                    if "Latitude end = 0.000" in line:
+                        fd1.write("Latitude end = "+latlonEnd[0]+"\n")
+                    if "Max Depth = 0.000" in line:
+                        fd1.write("Max Depth (m???) = " + str(max) +"\n")  
+                        #fd[11]= "Max Depth = " + str(max)
+                    if line.startswith("1") and not body:           #Commencons à parcourir les colonnes à partir de la ligne de l'objet '1'    (Sécurité 1 ?)
+                        body = True
+                    if body == True and line.count('\t')>10:   #Pour parcourir les colonnes d'une ligne, utilisons \t pour différencier les données entre chaque tabulation. Et pour être sur de commencer au bon endroit, il faut avoir parcouru au moins 10 lignes (sécurtié 2?)
+                        l = line.split("\t")
+                        if l[colBord] == "0":       #Lorsque la colonne en l(col) - soit la colonne Bord - possède un caractère = à 0 alors:
+                            fd1.write(line)     #la ligne est copiée dans le fichier créé (fd1) 
+                    else:
+                        if "Latitude" not in line and "Longitude"not in line and "Max Depth = 0.000"not in line :
+                            fd1.write(line)         #Cette ligne permet de copier dans le nouveau fichier les lignes précédents le tableau.
+
 
 
 def supfile():
