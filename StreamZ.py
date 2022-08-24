@@ -260,8 +260,8 @@ def starthere():
     #for i in range(len(WP2list)):
         #readOnlyText.insert('end',"\nCutted files in "+WP2list[i]+" : "+ str(ls_deleted_objects_wp[i]))
     #readOnlyText.see(END)
-    end = Label (text ="completed successfully")
-    end.grid(row=14,column=3)
+    #end = Label (text ="completed successfully")
+    #end.grid(row=14,column=3)
 
 
 
