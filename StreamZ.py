@@ -1,11 +1,8 @@
 import streamlit as st
-import zipfile
 from os import listdir, mkdir, makedirs,path
 from glob import glob
 from pandas import read_csv, read_excel
-from shutil import copy,unpack_archive
-from tkinter import END, Tk, Label, Button, Checkbutton,IntVar, filedialog,Text
-from tkinter.ttk import Progressbar
+from shutil import copy
 from threading import Thread
 
 
